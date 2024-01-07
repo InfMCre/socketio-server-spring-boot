@@ -1,13 +1,13 @@
-package com.example.socketio;
+package com.example.socketio.controllers;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.example.socketio.config.SocketIOConfig;
+import com.example.socketio.config.socketio.SocketEvents;
+import com.example.socketio.config.socketio.SocketIOConfig;
 import com.example.socketio.model.MessageFromServer;
 import com.example.socketio.model.MessageType;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/sockets")
-public class MyController {
+public class SocketController {
 
     private final SocketIOServer socketIoServer;
 
     @Autowired
-    public MyController(SocketIOServer socketIoServer) {
+    public SocketController(SocketIOServer socketIoServer) {
         this.socketIoServer = socketIoServer;
     }
 
@@ -39,7 +39,7 @@ public class MyController {
     		0
     	);
     	
-        socketIoServer.getBroadcastOperations().sendEvent("chat message", message);
+        socketIoServer.getBroadcastOperations().sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
 
         return "Mensaje enviado";
     }
@@ -54,7 +54,7 @@ public class MyController {
     		client.joinRoom(room);
     		
     		// se podria notificar a aquellos que estan en la room
-    		// socketIoServer.getRoomOperations(room).sendEvent("chat message", "el usuario XXXXXX se ha unido a la sala " + room);
+    		// socketIoServer.getRoomOperations(room).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, "el usuario XXXXXX se ha unido a la sala " + room);
     		
     		// aunque lo interesante y lo que habra que hacer es notificarle a dicho cliente que ha accedido a la room
 
@@ -92,7 +92,7 @@ public class MyController {
     	
     	Collection<SocketIOClient> clients = socketIoServer.getAllClients();
     	for (SocketIOClient client: clients) {
-    		Integer currentClientId = Integer.valueOf(client.get(SocketIOConfig.AUTHOR_ID_PARAM));
+    		Integer currentClientId = Integer.valueOf(client.get(SocketIOConfig.CLIENT_USER_ID_PARAM));
     		if (currentClientId == idUser) {
     			response = client;
     			break;

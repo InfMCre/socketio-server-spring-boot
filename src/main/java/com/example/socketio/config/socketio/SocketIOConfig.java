@@ -1,4 +1,4 @@
-package com.example.socketio.config;
+package com.example.socketio.config.socketio;
 
 import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.listener.*;
@@ -26,8 +26,8 @@ public class SocketIOConfig {
     
     private SocketIOServer server;
     
-    public final static String AUTHOR_NAME_PARAM = "authorname";
-    public final static String AUTHOR_ID_PARAM = "authorid";
+    public final static String CLIENT_USER_NAME_PARAM = "authorname";
+    public final static String CLIENT_USER_ID_PARAM = "authorid";
     public final static String AUTHORIZATION_HEADER = "Authorization";
     
 
@@ -45,7 +45,7 @@ public class SocketIOConfig {
 
         server.addConnectListener(new MyConnectListener(server));
         server.addDisconnectListener(new MyDisconnectListener());
-        server.addEventListener("chat message", MessageFromClient.class, onSendMessage());
+        server.addEventListener(SocketEvents.ON_MESSAGE_RECEIVED.value, MessageFromClient.class, onSendMessage());
         server.start();
 
         return server;
@@ -93,8 +93,8 @@ public class SocketIOConfig {
 				String authorId = datos[1];
 				String authorName = datos[2];
 
-				client.set(AUTHOR_ID_PARAM, authorId);
-				client.set(AUTHOR_NAME_PARAM, authorName);
+				client.set(CLIENT_USER_ID_PARAM, authorId);
+				client.set(CLIENT_USER_NAME_PARAM, authorName);
 				
 				// TODO ejemplo de salas
 				// ojo por que "Room1" no es la misma sala que "room1"
@@ -120,9 +120,9 @@ public class SocketIOConfig {
     	private void notificateDisconnectToUsers(SocketIOClient client) {
 			String room = null;
 			String message = "el usuario se ha desconectado salido";
-        	String authorIdS = client.get(AUTHOR_ID_PARAM);
+        	String authorIdS = client.get(CLIENT_USER_ID_PARAM);
         	Integer authorId = Integer.valueOf(authorIdS);
-        	String authorName = client.get(AUTHOR_NAME_PARAM);
+        	String authorName = client.get(CLIENT_USER_NAME_PARAM);
         	
         	MessageFromServer messageFromServer = new MessageFromServer(
         		MessageType.SERVER, 
@@ -131,16 +131,16 @@ public class SocketIOConfig {
         		authorName, 
         		authorId
         	);
-			client.getNamespace().getBroadcastOperations().sendEvent("chat message", messageFromServer);
+			client.getNamespace().getBroadcastOperations().sendEvent(SocketEvents.ON_SEND_MESSAGE.value, messageFromServer);
     	}
     }
     
     private DataListener<MessageFromClient> onSendMessage() {
         return (senderClient, data, acknowledge) -> {
         	
-        	String authorIdS = senderClient.get(AUTHOR_ID_PARAM);
+        	String authorIdS = senderClient.get(CLIENT_USER_ID_PARAM);
         	Integer authorId = Integer.valueOf(authorIdS);
-        	String authorName = senderClient.get(AUTHOR_NAME_PARAM);
+        	String authorName = senderClient.get(CLIENT_USER_NAME_PARAM);
         	
         	System.out.printf("Mensaje recibido de (%d) %s. El mensaje es el siguiente: %s \n", authorId, authorName, data.toString());
         	
@@ -157,7 +157,7 @@ public class SocketIOConfig {
             	);
             	
             	// enviamos a la room correspondiente:
-            	server.getRoomOperations(data.getRoom()).sendEvent("chat message", message);
+            	server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
             	// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room
             	// senderClient.getNamespace().getBroadcastOperations().sendEvent("chat message", message);
 

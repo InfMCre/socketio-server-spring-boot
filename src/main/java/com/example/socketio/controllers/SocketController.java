@@ -6,8 +6,13 @@ import com.example.socketio.config.socketio.SocketEvents;
 import com.example.socketio.config.socketio.SocketIOConfig;
 import com.example.socketio.model.MessageFromServer;
 import com.example.socketio.model.MessageType;
+import com.example.socketio.services.firebase.FirebaseMessagingOperations;
+import com.example.socketio.services.firebase.FirebaseMessagingOperationsService;
+import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,10 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class SocketController {
 
     private final SocketIOServer socketIoServer;
+    // private final FirebaseMessaging fcm;
+    
+    @Autowired
+    private FirebaseMessagingOperationsService firebaseMessagingOperationsService;
 
     @Autowired
     public SocketController(SocketIOServer socketIoServer) {
         this.socketIoServer = socketIoServer;
+        // this.fcm = fcm;
     }
 
     @GetMapping("/send-message")
@@ -41,6 +51,19 @@ public class SocketController {
     	
         socketIoServer.getBroadcastOperations().sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
 
+        return "Mensaje enviado";
+    }
+    
+    @GetMapping("/send-firebase-message")
+    public String sendFirebaseMessage() {
+        // Envia un mensaje a todos los clientes conectados
+    	
+    	String deviceToken = "fELjajD7Q-mg4nUrPMzOPa:APA91bEUjgJdPiD7dSYh5FW44rkq9b3FABvAVW9fhHFdGXhnHvcXFXqu4gJxBJNnwO6wv962hPGVVdGMrn0K_7Nm3-TwL5D2duhsjbjQN_GltVa8Ck2VbBKFu3vXoGYN8kzdHtnTeIo4";
+    	List<String> deviceTokens = new ArrayList<String>();
+    	deviceTokens.add(deviceToken);
+    	// firebaseMessagingOperations.sendMulticastNotification(fcm, deviceTokens);
+    	firebaseMessagingOperationsService.sendMulticastNotification(deviceTokens);
+    	
         return "Mensaje enviado";
     }
     

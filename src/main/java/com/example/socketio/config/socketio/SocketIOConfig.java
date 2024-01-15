@@ -5,12 +5,14 @@ import com.corundumstudio.socketio.listener.*;
 import com.example.socketio.model.MessageFromClient;
 import com.example.socketio.model.MessageFromServer;
 import com.example.socketio.model.MessageType;
-
+import com.example.socketio.services.firebase.FirebaseMessagingOperationsService;
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,8 +31,16 @@ public class SocketIOConfig {
     public final static String CLIENT_USER_NAME_PARAM = "authorname";
     public final static String CLIENT_USER_ID_PARAM = "authorid";
     public final static String AUTHORIZATION_HEADER = "Authorization";
-    
 
+    
+    @Autowired
+    private FirebaseMessagingOperationsService firebaseMessagingOperationsService;
+    
+    /*
+    public SocketIOConfig(FirebaseMessaging fcm) {
+    	this.fcm = fcm;
+    }
+    */
     @Bean
     public SocketIOServer socketIOServer() {
     	com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
@@ -163,6 +173,11 @@ public class SocketIOConfig {
 
             	// esto puede que veamos mas adelante
                 // acknowledge.sendAckData("El mensaje se envio al destinatario satisfactoriamente");
+
+            	// enviar notificaciones
+            	List<String> deviceTokens = new ArrayList<String>();
+            	deviceTokens.add("fELjajD7Q-mg4nUrPMzOPa:APA91bEUjgJdPiD7dSYh5FW44rkq9b3FABvAVW9fhHFdGXhnHvcXFXqu4gJxBJNnwO6wv962hPGVVdGMrn0K_7Nm3-TwL5D2duhsjbjQN_GltVa8Ck2VbBKFu3vXoGYN8kzdHtnTeIo4");
+            	firebaseMessagingOperationsService.sendMulticastNotification(deviceTokens);
         	} else {
         		// TODO
         		// como minimo no dejar. se podria devolver un mensaje como MessageType.SERVER de que no puede enviar...
@@ -172,7 +187,9 @@ public class SocketIOConfig {
         };
     }
 
-    private boolean checkIfSendCanSendToRoom(SocketIOClient senderClient, String room) {
+
+
+	private boolean checkIfSendCanSendToRoom(SocketIOClient senderClient, String room) {
     	if (senderClient.getAllRooms().contains(room)) {
     		System.out.println("SI tiene permiso para enviar mensaje en la room");
     		return true;

@@ -27,16 +27,19 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
 		<!-- https://mvnrepository.com/artifact/com.corundumstudio.socketio/netty-socketio -->
+		<!-- Dependencia de socketIO -->
 		<dependency>
 		    <groupId>com.corundumstudio.socketio</groupId>
 		    <artifactId>netty-socketio</artifactId>
 		    <version>2.0.6</version>
+		</dependency>
+		
+		<!-- SDK de Firebase (admin) -->
+		<dependency>
+		    <groupId>com.google.firebase</groupId>
+		    <artifactId>firebase-admin</artifactId>
+		    <version>9.1.1</version>
 		</dependency>
 		
 	</dependencies>

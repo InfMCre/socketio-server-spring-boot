@@ -6,9 +6,12 @@ import com.example.socketio.model.MessageFromClient;
 import com.example.socketio.model.MessageFromServer;
 import com.example.socketio.model.MessageType;
 import com.example.socketio.services.firebase.FirebaseMessagingOperationsService;
+
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 
 @Configuration
 public class SocketIOConfig {
@@ -25,6 +29,13 @@ public class SocketIOConfig {
 
     @Value("${socket-server.port}")
     private Integer port;
+    
+    @Value("${server.ssl.key-store-password}")
+    private String keyStorePassword;
+    
+    @Value("${server.ssl.key-store}")
+    private Resource keyStoreFile;
+    
     
     private SocketIOServer server;
     
@@ -36,20 +47,22 @@ public class SocketIOConfig {
     @Autowired
     private FirebaseMessagingOperationsService firebaseMessagingOperationsService;
     
-    /*
-    public SocketIOConfig(FirebaseMessaging fcm) {
-    	this.fcm = fcm;
-    }
-    */
+
     @Bean
-    public SocketIOServer socketIOServer() {
+    public SocketIOServer socketIOServer() throws IOException {
     	com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
         config.setHostname(host);
         config.setPort(port);
-        
+
         // vamos a permitir a una web que no este en el mismo host y port conectarse. Si no da error de Cross Domain
         config.setAllowHeaders("Authorization");
-        config.setOrigin("http://localhost:8080");
+        config.setOrigin("https://localhost:8080");
+
+        // nuevo: cargar el certificado
+        config.setKeyStorePassword(keyStorePassword);
+        InputStream stream = keyStoreFile.getInputStream();
+        config.setKeyStore(stream);
+        // fin cargar certificado en la configuracion
 
         server = new SocketIOServer(config);
 
@@ -60,6 +73,8 @@ public class SocketIOConfig {
 
         return server;
     }
+    
+    
 
     private static class MyConnectListener implements ConnectListener {
 

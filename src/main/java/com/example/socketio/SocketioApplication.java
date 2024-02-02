@@ -7,7 +7,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SocketioApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SocketioApplication.class, args);
+		// originalmente era:
+		// SpringApplication.run(SocketioApplication.class, args);
+		
+		SpringApplication application = new SpringApplication(SocketioApplication.class);
+		// incluir ssl para https
+        application.setAdditionalProfiles("ssl");
+        application.run(args);
 	}
 
 }

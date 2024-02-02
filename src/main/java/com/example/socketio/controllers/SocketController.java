@@ -6,9 +6,7 @@ import com.example.socketio.config.socketio.SocketEvents;
 import com.example.socketio.config.socketio.SocketIOConfig;
 import com.example.socketio.model.MessageFromServer;
 import com.example.socketio.model.MessageType;
-import com.example.socketio.services.firebase.FirebaseMessagingOperations;
 import com.example.socketio.services.firebase.FirebaseMessagingOperationsService;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.Collection;
